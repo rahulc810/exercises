@@ -35,7 +35,7 @@ var iMutex = sync.Mutex{}
 var count uint64 = 0
 
 func Start(){
-	go processQ()
+	//go processQ()
 	go func(){
 		for{
 			itrsec()
@@ -116,7 +116,7 @@ func Del(id uint64)error{
 func processQ(){
 	for{
 		eve,err := q.Dequeue()
-		if err == nil{
+		if err == nil && eve !=nil{
 			e := eve.(event)
 			switch e.op{
 			case 1:  //put
