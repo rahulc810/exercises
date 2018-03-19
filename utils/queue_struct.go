@@ -23,10 +23,7 @@ func (q *ObjQueue) Enqueue(item interface{}) error{
 	mutex.Lock()
 	defer mutex.Unlock()
 	if q.tail == q.head && q.arr[q.head]==nil{
-		s,ok := item.(string)
-		if !ok{
-			return errors.New("Bad item to enqueue")	
-		}
+		s:= item
 		q.arr[q.tail] = s
 		return nil
 	}
@@ -38,10 +35,7 @@ func (q *ObjQueue) Enqueue(item interface{}) error{
 		return errors.New("Queue is full failed to enqueue")
 	}
 	q.tail = newTail
-	s,ok := item.(string)
-	if !ok{
-		return errors.New("Bad item to enqueue")	
-	}
+	s:= item
 	q.arr[q.tail] = s
 	return nil
 }
@@ -54,16 +48,15 @@ func (q *ObjQueue) Dequeue() (interface{},error){
 		return nil, errors.New("Cannot dequeue- its empty")
 	}
 
-	fmt.Printf("-=-=-=-=- %v,%v\n", q.head, q.tail)
 	ret := q.arr[q.head]
-	q.arr[q.head] = ""
+	q.arr[q.head] = nil
 	q.head = incrementHeadOrTail(q.head, q.Size())
 	return ret,nil
 }
 
 func (q *ObjQueue) Size() int{
 	if q.arr[q.head]==q.arr[q.tail]{
-		if q.arr[q.head] == ""{
+		if q.arr[q.head] == nil{
 			return 0
 		}
 		return 1

@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-easy.Listen()
+	easy.Start()
+//easy.Listen() -- hike server listen
 //clockMain()
 //easy.BaseMain()
 //easy.AffixCipherMain()
