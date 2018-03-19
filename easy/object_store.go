@@ -6,12 +6,14 @@ import(
 	"hash/fnv"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"github.com/rahulc810/exercises/utils"
 )
 
 type data struct{
 	text []byte
 	refs uint32
+	version int64
 }
 
 type event struct{
@@ -23,23 +25,31 @@ type event struct{
 var primary = make(map[uint64]string,1000)
 //k1->*text
 var secondary = make(map[string]*data,1000)
-var q = utils.NewObjQueue(1000)
+var q = utils.NewObjQueue(10)
 
 var hashMap = make(map[uint64]*data,1000)
 
 var pMutex = sync.RWMutex{}
 var sMutex = sync.RWMutex{}
 var iMutex = sync.Mutex{}
+var count uint64 = 0
 
 func Start(){
-	go processQ() 
+	go processQ()
+	go func(){
+		for{
+			itrsec()
+			fmt.Println()
+			time.Sleep(5)
+		}
+	}() 
 }
 
 //gaurentee uniqueness 
 func generateID() uint64{
 	iMutex.Lock()
 	defer iMutex.Unlock()
-	return uint64(time.Now().Unix())
+	return uint64(atomic.AddUint64(&count,1))
 }
 
 func getInternalID(pID uint64) string{
@@ -52,7 +62,7 @@ func hash(text []byte)uint64{
 	return h.Sum64()
 }
 
-func put(text []byte) uint64{
+func Put(text []byte) uint64{
 	id := generateID()
 	iid := getInternalID(id)
 
@@ -62,14 +72,14 @@ func put(text []byte) uint64{
 	defer sMutex.Unlock()
 	
 	primary[id] = iid
-	secondary[iid] = &data{text,1}
+	secondary[iid] = &data{text,1,time.Now().Unix()}
 
 	q.Enqueue(event{iid,1})
 
 	return id
 }
 
-func get(id uint64)([]byte,error){
+func Get(id uint64)([]byte,error){
 	pMutex.RLock()
 	sMutex.RLock()
 	defer pMutex.RUnlock()
@@ -87,7 +97,7 @@ func get(id uint64)([]byte,error){
 }
 
 
-func del(id uint64)error{
+func Del(id uint64)error{
 	pMutex.Lock()
 	sMutex.Lock()
 	defer pMutex.Unlock()
@@ -121,6 +131,7 @@ func processQ(){
 				h := hash(dataValue.text)
 				removeFromMap(e,h)
 			}
+			fmt.Printf("HASHMAP => %v\n", hashMap)
 		}
 	}
 }
@@ -152,4 +163,13 @@ func removeFromMap(e event, key uint64){
 			delete(hashMap,key)
 		}
 	}	
+}
+
+
+
+func itrsec(){
+	sMutex.RLock()
+	defer sMutex.RUnlock()
+
+	fmt.Printf("Secondary => %v\n", secondary)
 }

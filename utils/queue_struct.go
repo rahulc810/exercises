@@ -11,6 +11,7 @@ type ObjQueue struct{
  head int
  tail int
  max int
+ size int
 }
 
 var mutex = &sync.Mutex{}
@@ -22,21 +23,22 @@ func NewObjQueue(max int) ObjQueue{
 func (q *ObjQueue) Enqueue(item interface{}) error{
 	mutex.Lock()
 	defer mutex.Unlock()
-	if q.tail == q.head && q.arr[q.head]==nil{
-		s:= item
-		q.arr[q.tail] = s
-		return nil
+	fmt.Printf("Queue =>%v\n", q)
+	newTail := increment(q.tail,q.max)
+	if q.tail == q.head{
+		if q.arr[q.head]==nil{ 
+			newTail = 0
+		}
 	}
 
-
-	newTail := incrementHeadOrTail(q.tail,q.Size())
-	if newTail == q.head{
+	if newTail == q.head && q.arr[q.head]!=nil{
 		fmt.Printf("Queue is full failed to enqueue %d %d", q.head, newTail)
 		return errors.New("Queue is full failed to enqueue")
 	}
 	q.tail = newTail
 	s:= item
 	q.arr[q.tail] = s
+	q.size++
 	return nil
 }
 
@@ -50,25 +52,22 @@ func (q *ObjQueue) Dequeue() (interface{},error){
 
 	ret := q.arr[q.head]
 	q.arr[q.head] = nil
-	q.head = incrementHeadOrTail(q.head, q.Size())
+	q.head = increment(q.head, q.max)
+	q.size--
 	return ret,nil
 }
 
 func (q *ObjQueue) Size() int{
-	if q.arr[q.head]==q.arr[q.tail]{
-		if q.arr[q.head] == nil{
-			return 0
-		}
-		return 1
-	}
-
-	if q.head > q.tail{
-		return len(q.arr) -q.head + q.tail + 1
-	}
-
-	return q.tail - q.head + 1 
+	return q.size
 }
 
 func (q *ObjQueue) Max() int{
 	return q.max
+}
+
+func increment(ht int, max int) int{
+	 if ht == max -1{
+		 return 0
+	 }
+		 return ht+1
 }

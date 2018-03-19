@@ -10,6 +10,13 @@ import (
 
 func main() {
 	easy.Start()
+	easy.Put([]byte("ABC"))
+	easy.Put([]byte("ABC"))
+	easy.Put([]byte("ABC"))
+	easy.Put([]byte("ABC"))
+
+	for{}
+	
 //easy.Listen() -- hike server listen
 //clockMain()
 //easy.BaseMain()
