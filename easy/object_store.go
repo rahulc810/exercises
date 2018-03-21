@@ -8,6 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"bytes"
+
 	"github.com/rahulc810/exercises/utils"
 )
 
@@ -15,6 +17,7 @@ type data struct {
 	text    []byte
 	refs    uint32
 	version int64
+	next    *data
 }
 
 type event struct {
@@ -74,7 +77,7 @@ func Put(text []byte) uint64 {
 	defer sMutex.Unlock()
 
 	primary[id] = iid
-	secondary[iid] = &data{text, 1, time.Now().Unix()}
+	secondary[iid] = &data{text, 1, time.Now().Unix(), nil}
 
 	q.Enqueue(event{iid, 1})
 
@@ -129,7 +132,7 @@ func processQ() {
 			case 2: //del
 				dataValue := secondary[e.eKey]
 				h := hash(dataValue.text)
-				removeFromMap(e, h)
+				removeFromMap(e, h, dataValue.text)
 			}
 			fmt.Printf("HASHMAP => %v\n", hashMap)
 		}
@@ -147,22 +150,61 @@ func putInMap(key uint64, d *data) (bool, *data) {
 		hashMap[key] = d
 		return false, nil
 	} else {
-		ret.refs++
+		//traverse the linked list and euqate with each element
+		//if found increment the ref count else
+		//append to the linked list
+		node := ret
+		found := false
+		for ok := true; ok; ok = (node != nil) {
+			if bytes.Equal(node.text, d.text) {
+				node.refs++
+				found = true
+				break
+			} else if node.next == nil {
+				break
+			}
+			node = node.next
+		}
+
+		if !found {
+			node.next = d
+		}
+
 		return true, ret
 	}
 }
 
-func removeFromMap(e event, key uint64) {
+func removeFromMap(e event, key uint64, text []byte) {
 	ret, ok := hashMap[key]
 	if !ok {
 	} else {
 		fmt.Printf("Removing from secondary => %v <%v>\n", ret, secondary[e.eKey])
-		ret.refs--
 		sMutex.Lock()
 		delete(secondary, e.eKey)
 		sMutex.Unlock()
-		if ret.refs < 1 {
-			delete(hashMap, key)
+
+		//traverse the linked list and euqate with each element
+		//if found decrement the ref count if ref count > 1
+		//else remove the node
+		var prev *data
+		for node := ret; node != nil; prev, node = node, node.next {
+			if bytes.Equal(node.text, text) {
+				if node.refs <= 1 {
+					//delete node
+					if prev == nil {
+						//first node
+						delete(hashMap, key)
+						//there are other nodes in teh bucket
+						if node.next != nil {
+							hashMap[key] = node.next
+						}
+					} else {
+						prev.next = node.next
+					}
+				} else {
+					node.refs--
+				}
+			}
 		}
 	}
 }
@@ -171,5 +213,10 @@ func itrsec() {
 	sMutex.RLock()
 	defer sMutex.RUnlock()
 
-	fmt.Printf("Secondary => %v\n", secondary)
+	var out string
+	for k, v := range secondary {
+		out += fmt.Sprintf("%v : %v |", k, v)
+	}
+
+	fmt.Printf("Secondary => %v\n", out)
 }
