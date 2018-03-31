@@ -12,6 +12,16 @@ import (
 
 func main() {
 	//defer profile.Start(profile.MemProfile).Stop()
+	easy.MarblePuzzle(89)
+	//hikeServer()
+	//easy.Listen() -- hike server listen
+	//clockMain()
+	//easy.BaseMain()
+	//easy.AffixCipherMain()
+	//easy.RabbitMain()
+}
+
+func hikeServer() {
 	easy.Start()
 	id1 := easy.Put([]byte("ABC"))
 	id2 := easy.Put([]byte("ABC"))
@@ -27,11 +37,6 @@ func main() {
 	easy.Del(id4)
 	for {
 	}
-	//easy.Listen() -- hike server listen
-	//clockMain()
-	//easy.BaseMain()
-	//easy.AffixCipherMain()
-	//easy.RabbitMain()
 }
 
 func clockMain() {
