@@ -37,7 +37,7 @@ func preToIn(pre []interface{}, in []interface{}) {
 	}
 }
 func (h *HeapArr) printPretty() {
-	filler := " "
+	filler := "."
 	l := len(h.arr)
 	lvls := int(math.Ceil(math.Log2(float64(l))))
 	nodesOnLastLvl := 1 << (uint64(lvls - 1))
@@ -50,7 +50,7 @@ func (h *HeapArr) printPretty() {
 
 	idx := 0
 	numberOfBlanksRows := 0
-	fmt.Printf("Gibber %v %v\n", tRows, numberOfBlanksRows)
+	fmt.Printf("Gibber %v %v %v\n", tRows, numberOfBlanksRows, tCols)
 	r := 1
 	for lv := 1; lv <= lvls; lv++ {
 		if r == 1 {
@@ -65,16 +65,19 @@ func (h *HeapArr) printPretty() {
 		numberOfNodes := 1 << (uint32(lv) - 1)
 		spacesBetweenNodes := (1 << (uint32(lvls - lv + 2))) - 1
 		spacesOnEnds := tCols - ((numberOfNodes - 1) * spacesBetweenNodes) - numberOfNodes
-		for ro := 1; ro <= (1<<uint32(lvls-lv+1))-1; ro++ {
-			for nodes := 1; nodes <= lv-1; nodes++ {
-				p(filler, spacesOnEnds/2)
+		for ro, nd := 1, 1; ro <= (1<<uint32(lvls-lv+1))-1; ro, nd = ro+1, nd+1 {
+			p(filler, spacesOnEnds/2)
+			for nodes := 1; nodes <= 1<<(uint32(lv-2)); nodes++ {
 				p(filler, 1)
 				p(filler, (spacesBetweenNodes/2)-ro)
 				p("/", 1)
 				p(filler, 2*ro-1)
 				p("\\", 1)
 				p(filler, (spacesBetweenNodes/2)-ro)
-				p(filler, spacesBetweenNodes)
+				p(filler, 1)
+				if nodes < 1<<(uint32(lv-2)) {
+					p(filler, spacesBetweenNodes)
+				}
 			}
 			p(filler, spacesOnEnds/2)
 			p("\n", 1)
