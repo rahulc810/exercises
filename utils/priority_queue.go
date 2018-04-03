@@ -37,7 +37,7 @@ func preToIn(pre []interface{}, in []interface{}) {
 	}
 }
 func (h *HeapArr) printPretty() {
-	filler := "."
+	filler := " "
 	l := len(h.arr)
 	lvls := int(math.Ceil(math.Log2(float64(l))))
 	nodesOnLastLvl := 1 << (uint64(lvls - 1))
@@ -162,7 +162,8 @@ func NewHeap() Heap {
 }
 
 func Exec() {
-	sl := []interface{}{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}
+	sl := []interface{}{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"}
+	sl = []interface{}{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"}
 	h := &HeapArr{sl, 0}
 	h.printPretty()
 
