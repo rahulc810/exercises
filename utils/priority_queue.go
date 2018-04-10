@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"math"
+	"reflect"
 )
 
 type Heap interface {
@@ -14,6 +15,7 @@ type Heap interface {
 type HeapArr struct {
 	arr  []interface{}
 	head int
+	tail int
 }
 
 type Node struct {
@@ -24,27 +26,81 @@ type Node struct {
 
 func (h *HeapArr) push(key interface{}) {
 	fmt.Println("Executing push")
+	h.arr = append(h.arr, key)
+	child := h.tail
+	h.maxHeapify(child)
+	h.tail++
+
+	h.printPretty()
 }
 
 func (h *HeapArr) pop() (interface{}, bool) {
-	return nil, false
+	if h.tail == 0 {
+		return nil, false
+	}
+	ret := h.arr[0]
+	h.arr[0] = h.arr[h.tail-1]
+	h.arr[h.tail-1] = "x"
+	h.tail--
+	h.Heapify()
+	return ret, true
 }
 
-func preToIn(pre []interface{}, in []interface{}) {
-	//idx := 0
-	for i := 0; i < len(pre); i++ {
-		//
+func (h *HeapArr) Heapify() {
+	for i := (h.tail - 1) / 2; i >= 0; i-- {
+		fmt.Println(i)
+		h.maxHeapify(i)
+	}
+	h.printPretty()
+}
+
+func (h *HeapArr) maxHeapify(parent int) {
+	var count uint32
+	op := parent
+	defer fmt.Printf("Max Heapify on [%v]: %v completed after %v hops\n", op, h.arr[op], count)
+	for {
+		leftChild := parent*2 + 1
+		rightChild := parent*2 + 2
+
+		rExists := rightChild < h.tail
+		lExists := leftChild < h.tail
+
+		var m int
+		if rExists && lExists {
+			m = max(h.arr, leftChild, rightChild)
+		} else if lExists {
+			m = leftChild
+		} else if rExists {
+			m = rightChild
+		} else {
+			return
+		}
+		if v, ok := compare(h.arr[parent], h.arr[m]); v < 1 && ok {
+			swap(h.arr, parent, m)
+			parent = m
+		} else {
+			return
+		}
+		count++
 	}
 }
+
+func getParent(child int) int {
+	if child%2 == 1 {
+		return child / 2
+	}
+	return child/2 - 1
+}
+
 func (h *HeapArr) printPretty() {
 	filler := " "
 	l := len(h.arr)
-	lvls := int(math.Ceil(math.Log2(float64(l))))
+	lvls := int(math.Ceil(math.Log2(float64(l + 1))))
 	nodesOnLastLvl := 1 << (uint64(lvls - 1))
-	tPossibleNodes := (1 << (uint32(lvls))) - 1
-	fmt.Println("Total levels: ", lvls)
-	fmt.Println("Nodes in last level: ", nodesOnLastLvl)
-	fmt.Println("Total possible nodes in the tree: ", tPossibleNodes)
+	//tPossibleNodes := (1 << (uint32(lvls))) - 1
+	//fmt.Println("Total levels: ", lvls)
+	//fmt.Println("Nodes in last level: ", nodesOnLastLvl)
+	//fmt.Println("Total possible nodes in the tree: ", tPossibleNodes)
 	tCols := (nodesOnLastLvl-1)*3 + nodesOnLastLvl //spacesBetweenNodes for last lvl is alway 3
 	idx := 0
 	for lv := 1; lv <= lvls; lv++ {
@@ -156,15 +212,74 @@ func p(filler interface{}, n int) {
 	}
 }
 
+func max(arr []interface{}, a, b int) int {
+	val := arr[a]
+	switch val.(type) {
+	case int:
+		aInt, _ := arr[a].(int)
+		bInt, _ := arr[b].(int)
+
+		if aInt > bInt {
+			return a
+		}
+		return b
+	default:
+		return 0
+	}
+}
+
+func compare(a, b interface{}) (int, bool) {
+	aType := reflect.TypeOf(a)
+	bType := reflect.TypeOf(b)
+	if aType != bType {
+		return 0, false
+	}
+	switch a.(type) {
+	case int:
+		aInt, oka := a.(int)
+		bInt, okb := b.(int)
+
+		if !oka || !okb {
+			return 0, false
+		}
+		if aInt > bInt {
+			return 1, true
+		} else if aInt < bInt {
+			return -1, true
+		} else {
+			return 0, true
+		}
+	default:
+		return 0, false
+	}
+
+}
+
+func swap(arr []interface{}, a, b int) {
+	temp := arr[a]
+	arr[a] = arr[b]
+	arr[b] = temp
+}
+
 func NewHeap() Heap {
 	arr := make([]interface{}, 0)
-	return &HeapArr{arr, 0}
+	return &HeapArr{arr, 0, 0}
 }
 
 func Exec() {
 	sl := []interface{}{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"}
 	sl = []interface{}{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"}
-	h := &HeapArr{sl, 0}
-	h.printPretty()
+	sl = []interface{}{6, 5, 3, 1, 8, 7, 2, 4}
+	h := &HeapArr{sl, 0, 8}
 
+	//h.printPretty()
+	h.Heapify()
+
+	p, _ := h.pop()
+	fmt.Printf("Popped: %v\n", p)
+
+	p, _ = h.pop()
+	fmt.Printf("Popped: %v\n", p)
+
+	//	h.push(18)
 }
