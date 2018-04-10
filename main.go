@@ -8,12 +8,12 @@ import (
 	//"github.com/rahulc810/exercises/utils"
 
 	"github.com/rahulc810/exercises/easy"
-	"github.com/rahulc810/exercises/utils"
 )
 
 func main() {
 	//defer profile.Start(profile.MemProfile).Stop()
-	utils.Exec()
+	easy.FindDctSubString()
+	//utils.Exec()
 	//easy.MarblePuzzle(89)
 	//hikeServer()
 	//easy.Listen() -- hike server listen
