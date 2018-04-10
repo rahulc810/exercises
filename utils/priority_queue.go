@@ -35,11 +35,11 @@ func (h *HeapArr) push(key interface{}) {
 }
 
 func (h *HeapArr) pop() (interface{}, bool) {
-	if h.tail == 0 {
+	if h.tail == h.head {
 		return nil, false
 	}
-	ret := h.arr[0]
-	h.arr[0] = h.arr[h.tail-1]
+	ret := h.arr[h.head]
+	h.arr[h.head] = h.arr[h.tail-1]
 	h.arr[h.tail-1] = "x"
 	h.tail--
 	h.Heapify()
@@ -47,7 +47,7 @@ func (h *HeapArr) pop() (interface{}, bool) {
 }
 
 func (h *HeapArr) Heapify() {
-	for i := (h.tail - 1) / 2; i >= 0; i-- {
+	for i := (h.tail + h.head) / 2; i >= h.head; i-- {
 		fmt.Println(i)
 		h.maxHeapify(i)
 	}
