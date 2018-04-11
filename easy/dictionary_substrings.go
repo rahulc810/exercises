@@ -187,3 +187,26 @@ func isValidCoord(c *coord) bool {
 func isVowel(c rune) bool {
 	return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u'
 }
+
+func closestPreviousVowel(c rune) rune {
+	//alpha has a sorted vowel list
+	var ret rune
+	for k, _ := range alpha {
+		if c > k {
+			ret = k
+		} else {
+			return ret
+		}
+	}
+	return ret
+}
+
+func getLocalMap(minVowel rune) map[rune]int {
+	ret := make(map[rune]int)
+	for k, _ := range alpha {
+		if minVowel < k {
+			ret[k] = 0
+		}
+	}
+	return ret
+}
