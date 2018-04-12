@@ -75,7 +75,7 @@ func (h *HeapArr) maxHeapify(parent int) {
 		} else {
 			return
 		}
-		if v, ok := compare(h.arr[parent], h.arr[m]); v < 1 && ok {
+		if v, ok := Compare(h.arr[parent], h.arr[m]); v < 1 && ok {
 			swap(h.arr, parent, m)
 			parent = m
 		} else {
@@ -228,7 +228,7 @@ func max(arr []interface{}, a, b int) int {
 	}
 }
 
-func compare(a, b interface{}) (int, bool) {
+func Compare(a, b interface{}) (int, bool) {
 	aType := reflect.TypeOf(a)
 	bType := reflect.TypeOf(b)
 	if aType != bType {
