@@ -15,14 +15,12 @@ func heapSort(arr []interface{}, inc bool) {
 }
 
 func merge(arrA, arrB []interface{}) []interface{} {
-	//printArr(arr, s, mid)
-	//printArr(arr, mid+1, e)
 
 	ret := make([]interface{}, len(arrA)+len(arrB))
 
 	var i, j, c int
 	for i < len(arrA) && j < len(arrB) {
-		com, _ := Compare(arrA[i], arrB[j])
+		com := Compare(arrA[i], arrB[j])
 		if com <= 0 {
 			ret[c] = arrA[i]
 			i++
@@ -53,6 +51,36 @@ func mergeSort(arr []interface{}) []interface{} {
 
 }
 
+func QuickSort(arr []interface{}, s, e int) {
+	if s >= e {
+		return
+	}
+
+	p := partition(arr, s, e)
+	QuickSort(arr, s, p-1)
+	QuickSort(arr, p+1, e)
+}
+
+func partition(arr []interface{}, s, e int) int {
+	pivot := s
+	i, j := s+1, e
+	for {
+		for ; Compare(arr[i], arr[pivot]) < 0; i++ {
+		}
+		for ; Compare(arr[j], arr[pivot]) > 0; j-- {
+		}
+		if i < j {
+			swap(arr, i, j)
+			i++
+			j--
+		} else {
+			break
+		}
+	}
+	swap(arr, j, pivot)
+	return j
+}
+
 func printArr(arr []interface{}, s, e int) {
 	for i := s; i <= e; i++ {
 		fmt.Printf("%v ", arr[i])
@@ -63,8 +91,9 @@ func printArr(arr []interface{}, s, e int) {
 func Sort() {
 
 	arr := []interface{}{3, 52, 6, 83, 1, 45, 90}
-	//arr = []interface{}{2, 1, 3}
+	//arr = []interface{}{54, 26, 93, 17, 77, 31, 44, 55, 20}
 	//heapSort(arr, true)
-	arr = mergeSort(arr)
+	//arr = mergeSort(arr)
+	QuickSort(arr, 0, len(arr)-1)
 	fmt.Println(arr)
 }

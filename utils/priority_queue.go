@@ -75,7 +75,7 @@ func (h *HeapArr) maxHeapify(parent int) {
 		} else {
 			return
 		}
-		if v, ok := Compare(h.arr[parent], h.arr[m]); v < 1 && ok {
+		if Compare(h.arr[parent], h.arr[m]) < 1 {
 			swap(h.arr, parent, m)
 			parent = m
 		} else {
@@ -228,11 +228,11 @@ func max(arr []interface{}, a, b int) int {
 	}
 }
 
-func Compare(a, b interface{}) (int, bool) {
+func Compare(a, b interface{}) int {
 	aType := reflect.TypeOf(a)
 	bType := reflect.TypeOf(b)
 	if aType != bType {
-		return 0, false
+		return 0
 	}
 	switch a.(type) {
 	case int:
@@ -240,17 +240,17 @@ func Compare(a, b interface{}) (int, bool) {
 		bInt, okb := b.(int)
 
 		if !oka || !okb {
-			return 0, false
+			return 0
 		}
 		if aInt > bInt {
-			return 1, true
+			return 1
 		} else if aInt < bInt {
-			return -1, true
+			return -1
 		} else {
-			return 0, true
+			return 0
 		}
 	default:
-		return 0, false
+		return 0
 	}
 
 }
@@ -270,16 +270,32 @@ func Exec() {
 	sl := []interface{}{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"}
 	sl = []interface{}{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"}
 	sl = []interface{}{6, 5, 3, 1, 8, 7, 2, 4}
-	h := &HeapArr{sl, 0, 8}
+	//h := &HeapArr{sl, 0, 8}
 
 	//h.printPretty()
-	h.Heapify()
+	//h.Heapify()
 
-	p, _ := h.pop()
-	fmt.Printf("Popped: %v\n", p)
+	//p, _ := h.pop()
+	//fmt.Printf("Popped: %v\n", p)
 
-	p, _ = h.pop()
-	fmt.Printf("Popped: %v\n", p)
+	//p, _ = h.pop()
+	//fmt.Printf("Popped: %v\n", p)
 
 	//	h.push(18)
+
+	var root *Node
+
+	root = &Node{nil, nil, 6}
+	root.left = &Node{nil, nil, 5}
+	root.right = &Node{nil, nil, 3}
+	root.left.left = &Node{nil, nil, 1}
+	root.left.right = &Node{nil, nil, 8}
+	root.right.left = &Node{nil, nil, 7}
+	root.right.right = &Node{nil, nil, 2}
+
+	printTree(root)
+	root = nil
+	for _, val := range sl {
+		root = Insert(root, &Node{nil, nil, val})
+	}
 }
