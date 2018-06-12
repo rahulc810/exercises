@@ -12,10 +12,11 @@ import (
 )
 
 func main() {
+	easy.JobGraph()
 	//defer profile.Start(profile.MemProfile).Stop()
 	//utils.Sort()
 	//easy.FindDctSubString()
-	utils.Exec()
+	//utils.Exec()
 	//easy.MarblePuzzle(89)
 	//hikeServer()
 	//easy.Listen() -- hike server listen
