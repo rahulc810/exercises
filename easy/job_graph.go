@@ -58,9 +58,7 @@ func JobGraph() {
 	lk["H"] = h
 
 	//graph prepared
-
 	eval(a)
-
 }
 
 func eval(head Node) {
@@ -71,15 +69,7 @@ func eval(head Node) {
 	CPU(idle, jobs)
 
 	jobs <- head
-
 	start := time.Now()
-	//	for q.Size() > 0 {
-	//n, _ := q.Dequeue()
-	//node := n.(Node)
-	//fmt.Printf("%v added \n", node)
-	//jobs <- node
-
-	//	}
 	wg.Wait()
 	end := time.Now()
 
