@@ -65,8 +65,8 @@ func eval(head Node) {
 	jobs := make(chan Node, 100)
 	wg.Add(8)
 
-	idle = 1
-	CPU(idle, jobs)
+	cores = 1
+	CPU(cores, jobs)
 
 	jobs <- head
 	start := time.Now()
