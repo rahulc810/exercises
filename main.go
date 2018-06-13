@@ -8,7 +8,7 @@ import (
 	//"github.com/rahulc810/exercises/utils"
 
 	"github.com/rahulc810/exercises/easy"
-	"github.com/rahulc810/exercises/utils"
+	//"github.com/rahulc810/exercises/utils"
 )
 
 func main() {

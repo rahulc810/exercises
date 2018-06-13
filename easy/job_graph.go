@@ -10,26 +10,29 @@ var idle int
 var wg sync.WaitGroup
 
 type Node struct {
-	name     string
-	parent   []string
-	children []string
-	weight   time.Duration
-	status   bool
+	name       string
+	parent     []string
+	children   []string
+	weight     time.Duration
+	status     bool
+	inProgress bool
+	mutex      *sync.Mutex
 }
 
 var lk map[string]Node
+var mapMutex = &sync.Mutex{}
 
 //
 func JobGraph() {
 	fmt.Println("Prepare graph")
-	a := Node{"A", nil, nil, 2, false}
-	b := Node{"B", nil, nil, 2, false}
-	c := Node{"C", nil, nil, 2, false}
-	d := Node{"D", nil, nil, 2, false}
-	e := Node{"E", nil, nil, 2, false}
-	f := Node{"F", nil, nil, 2, false}
-	g := Node{"G", nil, nil, 2, false}
-	h := Node{"H", nil, nil, 2, false}
+	a := Node{"A", nil, nil, 2, false, false, &sync.Mutex{}}
+	b := Node{"B", nil, nil, 2, false, false, &sync.Mutex{}}
+	c := Node{"C", nil, nil, 2, false, false, &sync.Mutex{}}
+	d := Node{"D", nil, nil, 2, false, false, &sync.Mutex{}}
+	e := Node{"E", nil, nil, 2, false, false, &sync.Mutex{}}
+	f := Node{"F", nil, nil, 2, false, false, &sync.Mutex{}}
+	g := Node{"G", nil, nil, 2, false, false, &sync.Mutex{}}
+	h := Node{"H", nil, nil, 2, false, false, &sync.Mutex{}}
 
 	a.children = []string{"B"}
 	b.children = []string{"C", "D"}
@@ -65,7 +68,7 @@ func eval(head Node) {
 	jobs := make(chan Node, 100)
 	wg.Add(8)
 
-	cores = 1
+	cores := 2
 	CPU(cores, jobs)
 
 	jobs <- head
@@ -74,7 +77,6 @@ func eval(head Node) {
 	end := time.Now()
 
 	fmt.Printf("Time taken - %d", end.Sub(start)/1000000000)
-
 }
 
 func CPU(cores int, jobs chan Node) {
@@ -83,7 +85,7 @@ func CPU(cores int, jobs chan Node) {
 			for j := range jobs {
 				time.Sleep(j.weight * time.Second)
 				j.status = true
-				lk[j.name] = j
+				updateMap(lk, j.name, j)
 				fmt.Printf("%v complete \n", j.name)
 				//Queuechildren once parent is finished
 				for _, child := range j.children {
@@ -95,13 +97,28 @@ func CPU(cores int, jobs chan Node) {
 						}
 					}
 					if enqueue {
-						//q.Enqueue(child)
-						fmt.Printf("%v added \n", child)
-						jobs <- lk[child]
+						addJob(lk[child], jobs)
 					}
 				}
 				wg.Done()
 			}
 		}()
 	}
+}
+
+func addJob(n Node, jobs chan Node) {
+	n.mutex.Lock()
+	defer n.mutex.Unlock()
+	if !n.inProgress {
+		n.inProgress = true
+		lk[n.name] = n
+		fmt.Printf("%v added \n", n.name)
+		jobs <- n
+	}
+}
+
+func updateMap(lookupMap map[string]Node, key string, val Node) {
+	mapMutex.Lock()
+	defer mapMutex.Unlock()
+	lookupMap[key] = val
 }
