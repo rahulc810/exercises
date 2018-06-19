@@ -12,7 +12,9 @@ import (
 )
 
 func main() {
-	easy.JobGraph()
+	easy.ExecExclusiveMultiplicationInList()
+	//easy.ExecSumInArray()
+	//easy.JobGraph()
 	//defer profile.Start(profile.MemProfile).Stop()
 	//utils.Sort()
 	//easy.FindDctSubString()
